@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/davecgh/go-spew/spew"
@@ -79,20 +80,21 @@ type Info struct {
 }
 
 type Configuration struct {
-	Sbi         *Sbi      `yaml:"sbi,omitempty" valid:"required"`
-	NrfUri      string    `yaml:"nrfUri,omitempty" valid:"required"`
-	NrfCertPem  string    `yaml:"nrfCertPem,omitempty" valid:"optional"`
-	ServiceList []Service `yaml:"serviceList,omitempty" valid:"required"`
-	AmfUri      string    `yaml:"amfUri,omitempty" valid:"required"`
-	AusfUri     string    `yaml:"ausfUri,omitempty" valid:"required"`
-	ChfUri      string    `yaml:"chfUri,omitempty" valid:"required"`
-	NefUri      string    `yaml:"nefUri,omitempty" valid:"required"`
-	NssfUri     string    `yaml:"nssfUri,omitempty" valid:"required"`
-	PcfUri      string    `yaml:"pcfUri,omitempty" valid:"required"`
-	SmfUri      string    `yaml:"smfUri,omitempty" valid:"required"`
-	UdmUri      string    `yaml:"udmUri,omitempty" valid:"required"`
-	UdrUri      string    `yaml:"udrUri,omitempty" valid:"required"`
-	UpfUri      string    `yaml:"upfUri,omitempty" valid:"required"`
+	IdleTimeout *time.Duration `yaml:"idleTimeout,omitempty" valid:"optional"`
+	Sbi         *Sbi           `yaml:"sbi,omitempty" valid:"required"`
+	NrfUri      string         `yaml:"nrfUri,omitempty" valid:"required"`
+	NrfCertPem  string         `yaml:"nrfCertPem,omitempty" valid:"optional"`
+	ServiceList []Service      `yaml:"serviceList,omitempty" valid:"required"`
+	AmfUri      string         `yaml:"amfUri,omitempty" valid:"required"`
+	AusfUri     string         `yaml:"ausfUri,omitempty" valid:"required"`
+	ChfUri      string         `yaml:"chfUri,omitempty" valid:"required"`
+	NefUri      string         `yaml:"nefUri,omitempty" valid:"required"`
+	NssfUri     string         `yaml:"nssfUri,omitempty" valid:"required"`
+	PcfUri      string         `yaml:"pcfUri,omitempty" valid:"required"`
+	SmfUri      string         `yaml:"smfUri,omitempty" valid:"required"`
+	UdmUri      string         `yaml:"udmUri,omitempty" valid:"required"`
+	UdrUri      string         `yaml:"udrUri,omitempty" valid:"required"`
+	UpfUri      string         `yaml:"upfUri,omitempty" valid:"required"`
 }
 
 type Logger struct {
@@ -416,4 +418,15 @@ func (c *Config) NFServices() []models.Nrf_NFMgmt_NFService {
 		nfServices = append(nfServices, nfService)
 	}
 	return nfServices
+}
+
+// GetIdleTimeout returns the HTTP server idle timeout. Omitted values preserve
+// the previous 1ms timeout; an explicit zero disables the timeout.
+func (c *Config) GetIdleTimeout() time.Duration {
+	c.RLock()
+	defer c.RUnlock()
+	if c.Configuration == nil || c.Configuration.IdleTimeout == nil {
+		return time.Millisecond
+	}
+	return *c.Configuration.IdleTimeout
 }
