@@ -104,7 +104,9 @@ func NewServer(scp scp, tlsKeyLogPath string) (*Server, error) {
 	bindAddr := s.Config().SbiBindingAddr()
 	logger.SBILog.Infof("Binding addr: [%s]", bindAddr)
 	var err error
-	if s.httpServer, err = httpwrapper.NewHttp2Server(bindAddr, tlsKeyLogPath, s.router, s.Config().GetIdleTimeout()); err != nil {
+	if s.httpServer, err = httpwrapper.NewHttp2Server(
+		bindAddr, tlsKeyLogPath, s.router, s.Config().GetIdleTimeout(),
+	); err != nil {
 		logger.InitLog.Errorf("Initialize HTTP server failed: %+v", err)
 		return nil, err
 	}
