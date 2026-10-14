@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/free5gc/openapi"
 	scp_context "github.com/free5gc/scp/internal/context"
 	"github.com/free5gc/scp/internal/logger"
 	"github.com/free5gc/scp/internal/sbi"
@@ -29,6 +30,9 @@ type ScpApp struct {
 }
 
 func NewApp(cfg *factory.Config, tlsKeyLogPath string) (*ScpApp, error) {
+	if err := openapi.ConfigureHTTP2Clients(cfg.GetReadIdleTimeout(), cfg.GetPingTimeout()); err != nil {
+		return nil, err
+	}
 	var err error
 	scp := &ScpApp{cfg: cfg}
 	scp.SetLogEnable(cfg.GetLogEnable())

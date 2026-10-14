@@ -80,21 +80,23 @@ type Info struct {
 }
 
 type Configuration struct {
-	IdleTimeout *time.Duration `yaml:"idleTimeout,omitempty" valid:"optional"`
-	Sbi         *Sbi           `yaml:"sbi,omitempty" valid:"required"`
-	NrfUri      string         `yaml:"nrfUri,omitempty" valid:"required"`
-	NrfCertPem  string         `yaml:"nrfCertPem,omitempty" valid:"optional"`
-	ServiceList []Service      `yaml:"serviceList,omitempty" valid:"required"`
-	AmfUri      string         `yaml:"amfUri,omitempty" valid:"required"`
-	AusfUri     string         `yaml:"ausfUri,omitempty" valid:"required"`
-	ChfUri      string         `yaml:"chfUri,omitempty" valid:"required"`
-	NefUri      string         `yaml:"nefUri,omitempty" valid:"required"`
-	NssfUri     string         `yaml:"nssfUri,omitempty" valid:"required"`
-	PcfUri      string         `yaml:"pcfUri,omitempty" valid:"required"`
-	SmfUri      string         `yaml:"smfUri,omitempty" valid:"required"`
-	UdmUri      string         `yaml:"udmUri,omitempty" valid:"required"`
-	UdrUri      string         `yaml:"udrUri,omitempty" valid:"required"`
-	UpfUri      string         `yaml:"upfUri,omitempty" valid:"required"`
+	ReadIdleTimeout *time.Duration `yaml:"readIdleTimeout,omitempty" valid:"optional"`
+	PingTimeout     *time.Duration `yaml:"pingTimeout,omitempty" valid:"optional"`
+	IdleTimeout     *time.Duration `yaml:"idleTimeout,omitempty" valid:"optional"`
+	Sbi             *Sbi           `yaml:"sbi,omitempty" valid:"required"`
+	NrfUri          string         `yaml:"nrfUri,omitempty" valid:"required"`
+	NrfCertPem      string         `yaml:"nrfCertPem,omitempty" valid:"optional"`
+	ServiceList     []Service      `yaml:"serviceList,omitempty" valid:"required"`
+	AmfUri          string         `yaml:"amfUri,omitempty" valid:"required"`
+	AusfUri         string         `yaml:"ausfUri,omitempty" valid:"required"`
+	ChfUri          string         `yaml:"chfUri,omitempty" valid:"required"`
+	NefUri          string         `yaml:"nefUri,omitempty" valid:"required"`
+	NssfUri         string         `yaml:"nssfUri,omitempty" valid:"required"`
+	PcfUri          string         `yaml:"pcfUri,omitempty" valid:"required"`
+	SmfUri          string         `yaml:"smfUri,omitempty" valid:"required"`
+	UdmUri          string         `yaml:"udmUri,omitempty" valid:"required"`
+	UdrUri          string         `yaml:"udrUri,omitempty" valid:"required"`
+	UpfUri          string         `yaml:"upfUri,omitempty" valid:"required"`
 }
 
 type Logger struct {
@@ -429,4 +431,24 @@ func (c *Config) GetIdleTimeout() time.Duration {
 		return time.Millisecond
 	}
 	return *c.Configuration.IdleTimeout
+}
+
+// GetReadIdleTimeout returns the HTTP/2 client health-check timeout.
+func (c *Config) GetReadIdleTimeout() time.Duration {
+	c.RLock()
+	defer c.RUnlock()
+	if c.Configuration == nil || c.Configuration.ReadIdleTimeout == nil {
+		return time.Second
+	}
+	return *c.Configuration.ReadIdleTimeout
+}
+
+// GetPingTimeout returns the HTTP/2 client health-check timeout.
+func (c *Config) GetPingTimeout() time.Duration {
+	c.RLock()
+	defer c.RUnlock()
+	if c.Configuration == nil || c.Configuration.PingTimeout == nil {
+		return 2 * time.Second
+	}
+	return *c.Configuration.PingTimeout
 }
